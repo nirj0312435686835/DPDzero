@@ -1,101 +1,138 @@
-### 🧪 **DevOps Intern Assignment: Nginx Reverse Proxy + Docker**
+# 🌐 Microservices with NGINX Reverse Proxy
 
-You are expected to set up a simple system where:
-
-1. **Two Dockerized backend services** (can be dummy services) run on different ports.
-2. An **Nginx reverse proxy** (also in a Docker container) routes:
-
-   * `/service1` requests to backend service 1
-   * `/service2` requests to backend service 2
-3. All services must be accessible via a single port (e.g., `localhost:8080`).
+This project demonstrates a microservices architecture with **Golang** and **Python (Flask)** backend services. Both services run on the **same internal port (8080)** and are reverse-proxied by **NGINX** through Docker containers.
 
 ---
 
-### ✅ **Requirements**
+## 📦 Tech Stack
 
-1. Use Docker Compose to bring up the entire system.
-2. Each backend service should respond with a JSON payload like:
-
-   ```json
-   {"service": "service1"}
-   ```
-3. The Nginx config should support:
-
-   * Routing based on URL path prefix (`/service1`, `/service2`)
-   * Logging incoming requests with timestamp and path
-4. The system should work with a single command:
-
-   ```bash
-   docker-compose up --build
-   ```
-5. Bonus: Add a health check for both services and show logs of successful routing.
+- ⚙️ Golang HTTP service (`service_1`)
+- 🐍 Python Flask service (`service_2`)
+- 🌐 NGINX (reverse proxy and logger)
+- 🐳 Docker + Docker Compose
+- 🔁 Bridge networking (no host network)
 
 ---
 
-### 📁 Suggested Project Structure
+## 🏗️ Project Structure
 
-```
 .
-├── docker-compose.yml
-├── nginx
-│   ├── default.conf
-│   └── Dockerfile
-├── service_1
-│   ├── app.py
-│   └── Dockerfile
-├── service_2
-│   ├── app.py
-│   └── Dockerfile
-└── README.md
-```
+├── docker-compose.yml # Manages all services
+├── nginx/
+│ ├── nginx.conf # Reverse proxy config
+│ └── Dockerfile # Builds NGINX container
+├── service_1/
+│ ├── main.go # Go service with two endpoints
+│ ├── Dockerfile
+│ └── README.md # Local docs for service_1
+├── service_2/
+│ ├── app.py # Flask service with two endpoints
+│ ├── Dockerfile
+│ └── README.md # Local docs for service_2
+└── README.md # You are here
+
+yaml
+Copy
+Edit
 
 ---
 
-### 📦 Tech Constraints
+## 🔧 Services Overview
 
-* Nginx must run in a Docker container, not on host
-* Use bridge networking (no host networking)
+### 🟢 `service_1` (Go HTTP Server)
+- Runs on port `8080` inside its container
+- Endpoints:
+  - `GET /ping` → health check
+  - `GET /hello` → greeting message
 
----
+### 🟠 `service_2` (Flask App)
+- Also runs on port `8080` inside its container
+- Endpoints:
+  - `GET /ping` → health check
+  - `GET /hello` → greeting message
 
-### 📝 Submission Instructions
-
-1. Upload your project to GitHub or GitLab.
-2. Include a short `README.md` with:
-
-   * Setup instructions
-   * How routing works
-   * Any bonus you implemented
-3. Deadline: **1 week**
-4. Bonus points for:
-
-   * Logging clarity
-   * Clean and modular Docker setup
-   * Healthcheck or automated test script
+> Note: Both services run on port 8080 internally. NGINX handles the routing based on path.
 
 ---
 
-### ❓FAQs
+## 🌐 NGINX Reverse Proxy
 
-**Q: Is this a full-time role?**
-Yes. You would need to be in office in Bangalore.
+The NGINX container listens on **port 80** internally and maps to **host port 8080**. It routes requests as follows:
 
-**Q: Is there a stipend?**
-Yes. 20k INR per month
+| URL                          | Routed To           |
+|-----------------------------|---------------------|
+| `/service1/*`               | `service_1:8080/*`  |
+| `/service2/*`               | `service_2:8080/*`  |
 
-**Q: How many positions are open?**
-Two positions are open.
+It also logs incoming requests with timestamps using a custom format.
 
-**Q: I am still in college. Can I apply?**
-Unfortunately, we are looking for post-college candidates.
+---
 
-**Q: Can I reach out for doubts?**
-No — due to the volume of submissions. Please use your creativity and assumptions where needed.
+## 🔍 Health Checks
 
-**Q: Can I use ChatGPT or Copilot?**
-Yes, feel free to use AI tools — we care about your implementation and understanding.
+Docker Compose uses built-in `healthcheck` on both services to ensure they are up before NGINX connects.
 
-**Q: This feels like a lot for an intern assignment.**
-We agree it’s non-trivial — we’ve received many applications, so this helps us filter based on quality.
+---
+
+## 🚀 How to Run
+
+### 🧱 Prerequisites
+
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+
+### 📦 One-Command Build & Run
+
+```bash
+docker-compose up --build
+Docker will:
+
+Build both services and NGINX container
+
+Start everything in a bridge network
+
+Make the app available at http://localhost:8080
+
+🔗 Available Endpoints
+Once the services are running, you can test them via:
+
+Service 1:
+
+http://localhost:8080/service1/ping
+
+http://localhost:8080/service1/hello
+
+Service 2:
+
+http://localhost:8080/service2/ping
+
+http://localhost:8080/service2/hello
+
+📜 Example Logs
+You can view request logs in the terminal or inspect the logs with:
+
+bash
+Copy
+Edit
+docker logs nginx-proxy
+Example:
+
+bash
+Copy
+Edit
+01/Jul/2025:10:00:00 +0000 - 172.18.0.1 - GET /service1/hello HTTP/1.1
+💡 Notes
+Both services use port 8080 inside their container
+
+NGINX handles path-based routing (/service1, /service2)
+
+You can scale services independently and extend this for more microservices
+
+📚 Related Files
+Each service also contains its own README.md explaining how to run it independently.
+
+🙌 Credits
+Developed by [Your Name].
+Feel free to fork, improve, or use in your own microservice architectures.
 
 
