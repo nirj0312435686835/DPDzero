@@ -1,0 +1,15 @@
+FROM golang:1.21-alpine
+
+WORKDIR /app
+
+COPY . .
+
+# Initialize go.mod inside container
+RUN go mod init service1
+
+# Build the Go app
+RUN go build -o main .
+
+EXPOSE 8080
+
+CMD ["./main"]
